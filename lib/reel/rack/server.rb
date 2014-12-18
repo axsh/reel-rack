@@ -18,6 +18,7 @@ module Reel
         info "Listening on http://#{options[:Host]}:#{options[:Port]}"
 
         super(options[:Host], options[:Port], &method(:on_connection))
+        @options = options
         @app = app
       end
    
@@ -38,7 +39,9 @@ module Reel
         options = {
           :method       => request.method,
           :input        => request.body.to_s,
-          "REMOTE_ADDR" => request.remote_addr
+          "REMOTE_ADDR" => request.remote_addr,
+          "SERVER_NAME" => @options[:Host],
+          "SERVER_PORT" => @options[:Port].to_s,
         }.merge(convert_headers(request.headers))
    
         status, headers, body = app.call ::Rack::MockRequest.env_for(request.url, options)
